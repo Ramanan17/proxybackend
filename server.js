@@ -2,11 +2,9 @@ var express = require('express'),
     axios = require('axios'),
     app = express();
 require('dotenv').config()
-const PORT = 8080
-const HOST = "0.0.0.0"
+const defaulturl = process.env.DEFAULT_TARGET;
 
 app.all('*', function (req, res, next) {
-
     // Set CORS headers: allow all origins, methods, and headers:
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, PUT, PATCH, POST, DELETE");
@@ -15,10 +13,10 @@ app.all('*', function (req, res, next) {
         // CORS Preflight
         res.send();
     } else {
-        var targetURL = req.header('target'); // Target-URL ie. https://example.com or http://example.com
+        var targetURL = req.header('target')// Target-URL ie. https://example.com or http://example.com
+        // console.log(targetURL);
         if (!targetURL) {
-            res.send(500, { error: 'There is no Target-Endpoint header in the request' });
-            return;
+            targetURL = defaulturl;
         }
         const customHeaders = { ...req.headers, host: "test.my.salesforce.com" }
         const config = {
@@ -47,10 +45,6 @@ app.all('*', function (req, res, next) {
 });
 
 app.set('port', process.env.PORT || 3000);
-
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-  });
 
 app.listen(app.get('port'), function () {
     console.log('Proxy server listening on port ' + app.get('port'));
