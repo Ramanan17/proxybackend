@@ -1,3 +1,5 @@
+const e = require('express');
+
 var express = require('express'),
     axios = require('axios'),
     app = express();
@@ -18,12 +20,12 @@ app.all('*', function (req, res, next) {
         if (!targetURL) {
             targetURL = defaulturl;
         }
-        const customHeaders = { ...req.headers, host: "test.my.salesforce.com" }
+        const customHeaders = { ...req.headers, host: "indiashelter.my.salesforce.com" }
         const config = {
             url: req.url,
             method: req.method,
             data: req.body,
-            headers: req.headers,
+            headers: customHeaders,
             baseURL: targetURL,
             headers: req.headers,
             responseType: 'stream',
@@ -33,7 +35,15 @@ app.all('*', function (req, res, next) {
                 response.data.pipe(res);
             })
             .catch((error) => {
-                console.error(error);
+                // console.error(error);
+                if(error.response){
+                    res.status(error.response.stat
+                        ).send(error.message);
+                }
+                else{
+                    res.status(500).send(error.message);
+                }
+                // res.send(error.message)
             })
         // request({ url: targetURL + req.url, method: req.method, json: req.body, headers:req.headers},
         //     function (error, response, body) {
