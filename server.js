@@ -3,8 +3,23 @@ const e = require('express');
 var express = require('express'),
     axios = require('axios'),
     app = express();
+    bodyParser = require('body-parser')
 require('dotenv').config()
+
 const defaulturl = process.env.DEFAULT_TARGET;
+// create application/json parser
+var jsonParser = bodyParser.json()
+ 
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: true })
+app.use(urlencodedParser);
+app.use(jsonParser);
+// app.use(function frontControllerMiddlewareExecuted(req, res, next){
+//     // console.log('(1) this frontControllerMiddlewareExecuted is executed');
+//     console.log(req.body)
+//     next();
+//   });
+  
 
 app.all('*', function (req, res, next) {
     // Set CORS headers: allow all origins, methods, and headers:
@@ -20,24 +35,28 @@ app.all('*', function (req, res, next) {
         if (!targetURL) {
             targetURL = defaulturl;
         }
-        const customHeaders = { ...req.headers, host: "indiashelter.my.salesforce.com" }
+        const Host = targetURL.split("//").length > 1 ? targetURL.split("//")[1]:targetURL;
+        const customHeaders = { ...req.headers, Host: Host}
         const config = {
-            url: req.url,
+            url: targetURL+req.url,
             method: req.method,
             data: req.body,
+            // baseURL: targetURL,
             headers: customHeaders,
-            baseURL: targetURL,
-            headers: req.headers,
-            responseType: 'stream',
+            // responseType: 'stream',
         }
+        // console.log(config)
+        // console.log("request called")
         axios(config)
             .then((response) => {
-                response.data.pipe(res);
+                // console.log(response)
+                // response.data.pipe(res);
+                res.status(200).send(response.data)
             })
             .catch((error) => {
                 // console.error(error);
                 if(error.response){
-                    res.status(error.response.stat
+                    res.status(error.response.status
                         ).send(error.message);
                 }
                 else{
@@ -53,6 +72,11 @@ app.all('*', function (req, res, next) {
         //     }).pipe(res);
     }
 });
+
+// app.configure(function(){
+
+    // app.use(ur)
+//   });
 
 app.set('port', process.env.PORT || 3000);
 
