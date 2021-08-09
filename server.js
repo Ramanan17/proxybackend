@@ -37,24 +37,23 @@ app.all('*', function (req, res, next) {
         }
         const Host = targetURL.split("//").length > 1 ? targetURL.split("//")[1]:targetURL;
         const customHeaders = { ...req.headers, Host: Host}
-        const config = {
+        // console.log(Object.keys(req.body).length === 0)
+        const config =Object.keys(req.body).length !== 0? {
             url: targetURL+req.url,
             method: req.method,
             data: req.body,
-            // baseURL: targetURL,
-            headers: customHeaders,
-            // responseType: 'stream',
+            headers: targetURL.includes("salesforce")?customHeaders:{},
+        }:{
+            url: targetURL+req.url,
+            method: req.method,
+            headers: targetURL.includes("salesforce")?customHeaders:{},           
         }
-        // console.log(config)
-        // console.log("request called")
+
         axios(config)
             .then((response) => {
-                // console.log(response)
-                // response.data.pipe(res);
                 res.status(200).send(response.data)
             })
             .catch((error) => {
-                // console.error(error);
                 if(error.response){
                     res.status(error.response.status
                         ).send(error.message);
@@ -62,21 +61,11 @@ app.all('*', function (req, res, next) {
                 else{
                     res.status(500).send(error.message);
                 }
-                // res.send(error.message)
             })
-        // request({ url: targetURL + req.url, method: req.method, json: req.body, headers:req.headers},
-        //     function (error, response, body) {
-        //         if (error) {
-        //             console.error('error: ' + response)
-        //         }
-        //     }).pipe(res);
     }
 });
 
-// app.configure(function(){
 
-    // app.use(ur)
-//   });
 
 app.set('port', process.env.PORT || 3000);
 
