@@ -2,7 +2,8 @@
 var express = require('express'),
     axios = require('axios'),
     app = express();
-bodyParser = require('body-parser')
+    bodyParser = require('body-parser')
+    cors = require('cors')
 require('dotenv').config()
 
 const defaulturl = process.env.DEFAULT_TARGET;
@@ -13,6 +14,7 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: true })
 app.use(urlencodedParser);
 app.use(jsonParser);
+app.use(cors())
 
 // Route all requests
 app.all('*', function (req, res, next) {
